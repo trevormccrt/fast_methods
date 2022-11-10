@@ -34,10 +34,13 @@ def test_convergence():
         return 2/np.pi * f_test(x) * np.cos(m * np.arccos(x)) * 1/np.sqrt(1 - x**2)
 
     N = 2**10
-    m_test = 7
+    m_test = 1
     grid = np.expand_dims(chebychev.extrema_grid(N), 0)
     f_sampled = f_test(grid)
     f_trns = chebychev.cheb(f_sampled)
     exact = integrate.quad(lambda x: integrand(x, m_test), -1, 1)[0]
     fast = f_trns[0, m_test]
     np.testing.assert_allclose(exact, fast, rtol=1e-5)
+
+
+test_delta()

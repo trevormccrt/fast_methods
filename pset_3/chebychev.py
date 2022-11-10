@@ -9,9 +9,9 @@ def extrema_grid(N):
 
 def cheb(x):
     N = np.shape(x)[1]
-    return 1/(N-1) * fftpack.dct(x, axis=1, type=1)
+    return 1/(N-1) * fftpack.dct(x, axis=-1, type=1)
 
 
 def icheb(x):
-    return  1/2 * fftpack.idct(x, axis=1, type=1)
+    return  1/2 * fftpack.idct(x, axis=-1, type=1)
 
