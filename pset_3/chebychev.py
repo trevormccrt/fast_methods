@@ -8,7 +8,7 @@ def extrema_grid(N):
 
 
 def cheb(x):
-    N = np.shape(x)[1]
+    N = np.shape(x)[-1]
     return 1/(N-1) * fftpack.dct(x, axis=-1, type=1)
 
 
