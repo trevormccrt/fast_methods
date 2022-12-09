@@ -28,7 +28,7 @@ def test_delta():
 
 def test_convergence():
     def f_test(x):
-        return x**2 + np.tanh(x)
+        return x**2 + np.tanh(x)**2
 
     def integrand(x, m):
         return 2/np.pi * f_test(x) * np.cos(m * np.arccos(x)) * 1/np.sqrt(1 - x**2)
