@@ -53,8 +53,8 @@ def generate_s_x_contractor(k_dims, j_dims, full_s):
     chrs_in = [_num_to_chr(i) for i in range(n)]
     chrs_out = [_num_to_chr(i) for i in range(n, 2 * n)]
     first_sub = "".join(["{}{},".format(chr_out, chr_in) for chr_out, chr_in in zip(chrs_out, chrs_in)])
-    second_sub = "...".join(chrs_in)
-    third_sub = "...".join(chrs_out)
+    second_sub = "..." + "".join(chrs_in)
+    third_sub = "..." +"".join(chrs_out)
     sub = "{}{} -> {}".format(first_sub, second_sub, third_sub)
 
     def contractor(x):
@@ -66,8 +66,8 @@ def generate_w_sx_contractor(n):
     chrs_in = [_num_to_chr(i) for i in range(n)]
     chrs_out = [_num_to_chr(i) for i in range(n, 2 * n)]
     first_sub = "".join(chrs_out + chrs_in)
-    second_sub = "...".join(chrs_in)
-    third_sub = "...".join(chrs_out)
+    second_sub = "..." + "".join(chrs_in)
+    third_sub = "..." + "".join(chrs_out)
     sub = "{},{} -> {}".format(first_sub, second_sub, third_sub)
 
     def contractor(w, x):
