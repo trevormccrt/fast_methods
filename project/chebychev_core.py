@@ -51,8 +51,8 @@ def _contract_mat_nd(mat, input):
     chrs_in = [_num_to_chr(i) for i in range(n)]
     chrs_out = [_num_to_chr(i) for i in range(n, 2 * n)]
     first_sub = "".join(["{}{},".format(chr_out, chr_in) for chr_out, chr_in in zip(chrs_out, chrs_in)])
-    second_sub = "".join(chrs_in)
-    third_sub = "".join(chrs_out)
+    second_sub = "...".join(chrs_in)
+    third_sub = "...".join(chrs_out)
     sub = "{}{} -> {}".format(first_sub, second_sub, third_sub)
     return np.einsum(sub, *mat_copies, input)
 
@@ -62,8 +62,8 @@ def _contract_half_nd(w, x):
     chrs_in = [_num_to_chr(i) for i in range(n)]
     chrs_out = [_num_to_chr(i) for i in range(n, 2 * n)]
     first_sub = "".join(chrs_out + chrs_in)
-    second_sub = "".join(chrs_in)
-    third_sub = "".join(chrs_out)
+    second_sub = "...".join(chrs_in)
+    third_sub = "...".join(chrs_out)
     sub = "{},{} -> {}".format(first_sub, second_sub, third_sub)
     return np.einsum(sub, w, x)
 
