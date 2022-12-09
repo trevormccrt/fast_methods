@@ -115,18 +115,24 @@ def test_cheb_kernel_1d():
     def exact_integrand(r, x):
         return f_w(x, r) * f_x(x)
 
-    grid_size = 2**5
-    extrema_grid = chebychev_core.extrema_grid(grid_size)
-    grid_x, grid_y = np.meshgrid(extrema_grid, extrema_grid)
-    x_grid = f_x(extrema_grid)
-    w_grid = f_w(grid_x, grid_y)
+    w_in_grid_size = 2**5
+    w_out_grid_size = 2 ** 7
+    x_grid_size = 2 ** 8
+    w_in_extrema_grid = chebychev_core.extrema_grid(w_in_grid_size)
+    w_out_extreama_grid = chebychev_core.extrema_grid(w_out_grid_size)
+    x_extrema_grid = chebychev_core.extrema_grid(x_grid_size)
+    w_grid_x, w_grid_y = np.meshgrid(w_in_extrema_grid, w_out_extreama_grid)
+    x_grid = f_x(x_extrema_grid)
+    w_grid = f_w(w_grid_x, w_grid_y)
     x_cheb = chebychev_core.ncheb(x_grid)
     w_cheb = chebychev_core.ncheb(w_grid)
-    cheb_int_mat = chebychev_core.generate_cheb_integral_matrix(grid_size-1)
-    int_cheb = chebychev_core.chebychev_kernel_integral(x_cheb, w_cheb, cheb_int_mat)
+    cheb_int_mat = chebychev_core.generate_cheb_integral_matrix(np.max([w_in_grid_size, w_out_grid_size, x_grid_size])-1)
+    contractor_sx = chebychev_core.generate_s_x_contractor([w_in_grid_size], [x_grid_size], cheb_int_mat)
+    contractor_w_sx = chebychev_core.generate_w_sx_contractor(1)
+    int_cheb = chebychev_core.chebychev_kernel_integral(x_cheb, w_cheb, contractor_sx, contractor_w_sx)
     int_grid = chebychev_core.nicheb(int_cheb)
     exact_results = []
-    for this_r in extrema_grid:
+    for this_r in w_out_extreama_grid:
         exact_results.append(integrate.quad(lambda x: exact_integrand(this_r, x), -1, 1)[0])
     np.testing.assert_allclose(int_grid, exact_results, atol=1e-5)
 
@@ -141,21 +147,26 @@ def test_cheb_kernel_2d():
     def exact_integrand(y1, y2, x1, x2):
         return f_w(y1, y2, x1, x2) * f_x(x1, x2)
 
-    grid_size = 2 ** 5
-    extrema_grid = chebychev_core.extrema_grid(grid_size)
-    grid_y2, grid_y1, grid_x1, grid_x2 = np.meshgrid(extrema_grid, extrema_grid, extrema_grid, extrema_grid)
-    grid_x2_small, grid_x1_small = np.meshgrid(extrema_grid, extrema_grid)
-    cheb_int_mat = chebychev_core.generate_cheb_integral_matrix(grid_size - 1)
-    a = grid_x2[0, 0, :, :]
+    w_in_grid_size = [2 ** 6, 2 ** 5]
+    w_out_grid_size = [2 ** 5, 2 ** 6]
+    x_grid_size = [2 ** 4, 2 ** 5]
+
+    w_in_grids = [chebychev_core.extrema_grid(n) for n in w_in_grid_size]
+    w_out_grids = [chebychev_core.extrema_grid(n) for n in w_out_grid_size]
+    x_grids = [chebychev_core.extrema_grid(n) for n in x_grid_size]
+    grid_y1, grid_y2, grid_x1, grid_x2 = np.meshgrid(*w_out_grids, *w_in_grids, indexing="ij")
+    grid_x1_small, grid_x2_small = np.meshgrid(*x_grids, indexing="ij")
+    cheb_int_mat = chebychev_core.generate_cheb_integral_matrix(np.max(np.concatenate([w_in_grid_size, w_out_grid_size, x_grid_size])) - 1)
     x_grid = f_x(grid_x1_small, grid_x2_small)
     w_grid = f_w(grid_y1, grid_y2, grid_x1, grid_x2)
     x_cheb = chebychev_core.ncheb(x_grid)
     w_cheb = chebychev_core.ncheb(w_grid)
-    int_cheb = chebychev_core.chebychev_kernel_integral(x_cheb, w_cheb, cheb_int_mat)
+    contractor_sx = chebychev_core.generate_s_x_contractor(w_in_grid_size, x_grid_size, cheb_int_mat)
+    contractor_wsx = chebychev_core.generate_w_sx_contractor(2)
+    int_cheb = chebychev_core.chebychev_kernel_integral(x_cheb, w_cheb, contractor_sx, contractor_wsx)
     int_grid = chebychev_core.nicheb(int_cheb)
-    exact_results = np.zeros_like(grid_x1_small)
-    for i, y1 in enumerate(extrema_grid):
-        for j, y2 in enumerate(extrema_grid):
+    exact_results = np.zeros(w_out_grid_size)
+    for i, y1 in enumerate(w_out_grids[0]):
+        for j, y2 in enumerate(w_out_grids[1]):
             exact_results[i, j] = integrate.dblquad(lambda x1, x2: exact_integrand(y1, y2, x1, x2), -1, 1, -1, 1)[0]
-    np.testing.assert_allclose(exact_results, int_grid, atol=1e-5)
-
+    np.testing.assert_allclose(exact_results, int_grid, rtol=1e-4)

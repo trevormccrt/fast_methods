@@ -56,7 +56,10 @@ def generate_s_x_contractor(k_dims, j_dims, full_s):
     second_sub = "...".join(chrs_in)
     third_sub = "...".join(chrs_out)
     sub = "{}{} -> {}".format(first_sub, second_sub, third_sub)
-    return lambda x: np.einsum(sub, *s_mats, x)
+
+    def contractor(x):
+        return np.einsum(sub, *s_mats, x)
+    return contractor
 
 
 def generate_w_sx_contractor(n):
@@ -66,11 +69,14 @@ def generate_w_sx_contractor(n):
     second_sub = "...".join(chrs_in)
     third_sub = "...".join(chrs_out)
     sub = "{},{} -> {}".format(first_sub, second_sub, third_sub)
-    return lambda w, x: np.einsum(sub, w, x)
+
+    def contractor(w, x):
+        return np.einsum(sub, w, x)
+    return contractor
 
 
-def chebychev_kernel_integral(x_coeffs, w_coeffs, cheb_integral_matrix):
-    return _contract_half_nd(w_coeffs, _contract_mat_nd(cheb_integral_matrix, x_coeffs))
+def chebychev_kernel_integral(x_coeffs, w_coeffs, s_x_contractor, w_sx_contractor):
+    return w_sx_contractor(w_coeffs, s_x_contractor(x_coeffs))
 
 
 def generate_cheb_integral_matrix(m_max):
