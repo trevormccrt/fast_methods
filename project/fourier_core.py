@@ -1,8 +1,11 @@
 import numpy as np
 
 
-def fourier_series_coeffs(x):
-    return np.fft.fftn(x, norm="forward")
+def fourier_series_coeffs(x, axes_from=None):
+    axes = None
+    if axes_from is not None:
+        axes = list(range(len(x.shape)))[axes_from:]
+    return np.fft.fftn(x, norm="forward", axes=axes)
 
 
 def fft_convolution_integral(x_series_coeffs, y_series_coeffs):
