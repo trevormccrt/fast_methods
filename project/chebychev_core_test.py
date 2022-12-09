@@ -58,21 +58,29 @@ def test_cheb_integral():
     np.testing.assert_allclose(S, S_slow, atol=1e-8)
 
 
-def test_multicontract():
-    dim = 10
-    mat = np.random.uniform(-1, 1, (dim, dim))
-    vec_1d = np.random.uniform(-1, 1, dim)
-    multi_results_1d = chebychev_core._contract_mat_nd(mat, vec_1d)
+def test_s_x_contract():
+    dim_k = 12
+    dim_j = 17
+    mat = np.random.uniform(-1, 1, (dim_k, dim_j))
+    vec_1d = np.random.uniform(-1, 1, dim_j)
+    contractor_1d = chebychev_core.generate_s_x_contractor([dim_k], [dim_j], mat)
+    multi_results_1d = contractor_1d(vec_1d)
     true_result_1d = mat.dot(vec_1d)
     np.testing.assert_allclose(multi_results_1d, true_result_1d)
-    vec_2d = np.random.uniform(-1, 1, (dim, dim))
-    results_2d = np.zeros((dim, dim))
-    for k1 in range(dim):
-        for k2 in range(dim):
-            for j1 in range(dim):
-                for j2 in range(dim):
+    dim_k1 = 12
+    dim_k2 = 18
+    dim_j1 = 5
+    dim_j2 = 20
+    mat = np.random.uniform(-1, 1, (30, 30))
+    vec_2d = np.random.uniform(-1, 1, (dim_j1, dim_j2))
+    results_2d = np.zeros((dim_k1, dim_k2))
+    for k1 in range(dim_k1):
+        for k2 in range(dim_k2):
+            for j1 in range(dim_j1):
+                for j2 in range(dim_j2):
                     results_2d[k1, k2] += mat[k1, j1] * mat[k2, j2] * vec_2d[j1, j2]
-    multi_resuts_2d = chebychev_core._contract_mat_nd(mat, vec_2d)
+    contractor_2d = chebychev_core.generate_s_x_contractor([dim_k1, dim_k2], [dim_j1, dim_j2], mat)
+    multi_resuts_2d = contractor_2d(vec_2d)
     np.testing.assert_allclose(results_2d, multi_resuts_2d)
 
 
@@ -80,7 +88,8 @@ def test_contract_half():
     dim = 10
     mat_1d = np.random.uniform(-1, 1, (dim, dim))
     vec_1d = np.random.uniform(-1, 1, dim)
-    contract_results_1d = chebychev_core._contract_half_nd(mat_1d, vec_1d)
+    contractor_1d = chebychev_core.generate_w_sx_contractor(1)
+    contract_results_1d = contractor_1d(mat_1d, vec_1d)
     expected_1d = mat_1d.dot(vec_1d)
     np.testing.assert_allclose(contract_results_1d, expected_1d)
     mat_2d = np.random.uniform(-1, 1, (dim, dim, dim, dim))
@@ -91,7 +100,8 @@ def test_contract_half():
             for j1 in range(dim):
                 for j2 in range(dim):
                     results_2d[k1, k2] += mat_2d[k1, k2, j1, j2] * vec_2d[j1, j2]
-    contract_results_2d = chebychev_core._contract_half_nd(mat_2d, vec_2d)
+    contractor_2d = chebychev_core.generate_w_sx_contractor(2)
+    contract_results_2d = contractor_2d(mat_2d, vec_2d)
     np.testing.assert_allclose(results_2d, contract_results_2d)
 
 

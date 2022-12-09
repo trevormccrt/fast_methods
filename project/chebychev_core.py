@@ -45,27 +45,28 @@ def _num_to_chr(n):
     return chr(n + 97)
 
 
-def _contract_mat_nd(mat, input):
-    n = len(np.shape(input))
-    mat_copies = [mat] * n
+def generate_s_x_contractor(k_dims, j_dims, full_s):
+    s_mats = []
+    n = len(k_dims)
+    for k_dim, x_dim in zip(k_dims, j_dims):
+        s_mats.append(full_s[:k_dim, :x_dim])
     chrs_in = [_num_to_chr(i) for i in range(n)]
     chrs_out = [_num_to_chr(i) for i in range(n, 2 * n)]
     first_sub = "".join(["{}{},".format(chr_out, chr_in) for chr_out, chr_in in zip(chrs_out, chrs_in)])
     second_sub = "...".join(chrs_in)
     third_sub = "...".join(chrs_out)
     sub = "{}{} -> {}".format(first_sub, second_sub, third_sub)
-    return np.einsum(sub, *mat_copies, input)
+    return lambda x: np.einsum(sub, *s_mats, x)
 
 
-def _contract_half_nd(w, x):
-    n = len(np.shape(x))
+def generate_w_sx_contractor(n):
     chrs_in = [_num_to_chr(i) for i in range(n)]
     chrs_out = [_num_to_chr(i) for i in range(n, 2 * n)]
     first_sub = "".join(chrs_out + chrs_in)
     second_sub = "...".join(chrs_in)
     third_sub = "...".join(chrs_out)
     sub = "{},{} -> {}".format(first_sub, second_sub, third_sub)
-    return np.einsum(sub, w, x)
+    return lambda w, x: np.einsum(sub, w, x)
 
 
 def chebychev_kernel_integral(x_coeffs, w_coeffs, cheb_integral_matrix):

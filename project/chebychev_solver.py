@@ -11,3 +11,4 @@ def _eval_rhs(w_coeffs, x_coeffs, b_coeffs, f_nonlin, cheb_integral_matrix, g):
 
 
 def solve_coeffs(w_coeffs, init_x_coeffs, b_coeffs_func, g):
+    pass
