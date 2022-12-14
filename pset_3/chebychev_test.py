@@ -28,13 +28,13 @@ def test_delta():
 
 def test_convergence():
     def f_test(x):
-        return x**2 + np.tanh(x)
+        return x**2 + np.tanh(x)**2
 
     def integrand(x, m):
         return 2/np.pi * f_test(x) * np.cos(m * np.arccos(x)) * 1/np.sqrt(1 - x**2)
 
     N = 2**10
-    m_test = 1
+    m_test = 0
     grid = np.expand_dims(chebychev.extrema_grid(N), 0)
     f_sampled = f_test(grid)
     f_trns = chebychev.cheb(f_sampled)
@@ -43,4 +43,4 @@ def test_convergence():
     np.testing.assert_allclose(exact, fast, rtol=1e-5)
 
 
-test_delta()
+test_convergence()
