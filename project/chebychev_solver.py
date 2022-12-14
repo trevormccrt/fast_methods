@@ -12,7 +12,7 @@ def _eval_rhs(w_coeffs, x_coeffs, b_coeffs, f_nonlin, contractor_s_x, contractor
     return -x_coeffs + g * y_coeffs
 
 
-def solve_coeff_space(w_coeffs, init_x_coeffs, b_coeffs_func, g, f_nonlin, t_max, t_vals=None):
+def solve_coeff_space(w_coeffs, init_x_coeffs, b_coeffs_func, g, f_nonlin, t_max, t_vals=None, rtol=1e-7):
     n = int(len(np.shape(w_coeffs))/2)
     cheb_int_mat = chebychev_core.generate_cheb_integral_matrix(
         np.max(np.concatenate([w_coeffs.shape, init_x_coeffs.shape])) - 1)
@@ -30,4 +30,4 @@ def solve_coeff_space(w_coeffs, init_x_coeffs, b_coeffs_func, g, f_nonlin, t_max
         this_rhs = _eval_rhs(w_coeffs, this_x, b_coeffs, f_nonlin, contractor_sx, contractor_w_sx, g)
         return np.reshape(this_rhs, (np.shape(y)[0], -1))
 
-    return integrate.solve_ivp(integrand, [0, t_max], init_x_coeffs.flatten(), t_eval=t_vals, vectorized=True)
+    return integrate.solve_ivp(integrand, [0, t_max], init_x_coeffs.flatten(), t_eval=t_vals, vectorized=True, rtol=rtol)
