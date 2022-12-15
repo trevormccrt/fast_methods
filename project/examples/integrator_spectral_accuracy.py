@@ -21,8 +21,10 @@ def exact_integrand(r, x):
 def exact_integrator(r):
     return integrate.quad(lambda x: exact_integrand(r, x), -1, 1, epsrel=1e-11, limit=2000)[0]
 
+
 exact_k = 12
 exact_grid_size = 2 ** exact_k
+cheb_int_mat = chebychev_core.generate_cheb_integral_matrix(exact_grid_size - 1)
 extrema_grid = chebychev_core.extrema_grid(exact_grid_size)
 p = mp.Pool()
 exact_results = p.map(exact_integrator, extrema_grid)
@@ -30,7 +32,8 @@ p.close()
 p.join()
 exact_interp = interpolate.interp1d(extrema_grid, exact_results)
 
-print("running FFTs")
+
+this_w_sx_contractor = chebychev_core.generate_w_sx_contractor(1)
 k_vals = np.arange(start=1, stop=7, step=1)
 errors = []
 for k in k_vals:
@@ -40,8 +43,8 @@ for k in k_vals:
     w_grid = f_w(grid_x, grid_y)
     x_cheb = chebychev_core.ncheb(x_grid)
     w_cheb = chebychev_core.ncheb(w_grid)
-    cheb_int_mat = chebychev_core.generate_cheb_integral_matrix(len(this_grid) - 1)
-    int_cheb = chebychev_core.chebychev_kernel_integral(x_cheb, w_cheb, cheb_int_mat)
+    this_sx_contractor = chebychev_core.generate_s_x_contractor([len(this_grid)], [len(this_grid)], cheb_int_mat)
+    int_cheb = chebychev_core.chebychev_kernel_integral(x_cheb, w_cheb, this_sx_contractor, this_w_sx_contractor)
     int_grid = chebychev_core.nicheb(int_cheb)
     exact_int = exact_interp(this_grid)
     error = np.max(np.abs(int_grid - exact_int))/np.max(np.abs(exact_int))
@@ -66,7 +69,6 @@ axs[2].set_xlabel("Basis Size")
 axs[2].set_ylabel("Relative Error")
 axs[2].set_title("Integration Error")
 axs[2].set_yscale("log")
-#axs[2].set_xscale("log")
+
 fig.tight_layout()
 plt.show()
-print("")
