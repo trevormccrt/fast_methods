@@ -20,7 +20,7 @@ g = 1
 a = 1
 beta = 3/(13**2)
 gamma = 1.05 * beta
-f_nonlin = relu
+f_nonlin = np.tanh
 fourier_grid = fourier_core.fourier_grid(k)
 x1_grid, x2_grid = np.meshgrid(fourier_grid, fourier_grid, indexing="ij")
 kernel = conv_kernel(x1_grid, x2_grid, a, gamma, beta)
@@ -30,7 +30,7 @@ input_func = lambda t: static_input
 
 init_state = fourier_core.fourier_series_coeffs(np.random.uniform(-0.2, 0.2, np.shape(kernel)))
 
-soln_t, soln_coeffs = conv_solver.solve_coeff_space(kernel_coeffs, init_state, input_func, g, f_nonlin, 10,)
+soln_t, soln_coeffs = conv_solver.solve_coeff_space(kernel_coeffs, init_state, input_func, g, f_nonlin, 50, rtol=1e-7)
 soln_grid = np.real_if_close(fourier_core.nifft(soln_coeffs, axes_from=1))
 
 fig, axs = plt.subplots(nrows=1, ncols=2, sharey=True)
