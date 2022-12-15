@@ -41,4 +41,3 @@ axs[1].set_xlabel(r"$r/2\pi$")
 axs[1].set_title(r"$x(r,t)$")
 
 plt.show()
-print("")

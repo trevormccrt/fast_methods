@@ -54,5 +54,3 @@ axs[2].set_ylabel("x2")
 axs[2].set_title("Steady-State Response")
 fig.tight_layout()
 plt.show()
-
-print("")
