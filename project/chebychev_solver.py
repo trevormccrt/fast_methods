@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import integrate
-import chebychev_core
+
+from project import chebychev_core
 
 
 def _eval_rhs(w_coeffs, x_coeffs, b_coeffs, f_nonlin, contractor_s_x, contractor_w_sx, g):
@@ -30,4 +31,5 @@ def solve_coeff_space(w_coeffs, init_x_coeffs, b_coeffs_func, g, f_nonlin, t_max
         this_rhs = _eval_rhs(w_coeffs, this_x, b_coeffs, f_nonlin, contractor_sx, contractor_w_sx, g)
         return np.reshape(this_rhs, (np.shape(y)[0], -1))
 
-    return integrate.solve_ivp(integrand, [0, t_max], init_x_coeffs.flatten(), t_eval=t_vals, vectorized=True, rtol=rtol)
+    soln = integrate.solve_ivp(integrand, [0, t_max], init_x_coeffs.flatten(), t_eval=t_vals, vectorized=True, rtol=rtol)
+    return soln.t, np.reshape(np.transpose(soln.y), (-1, *np.shape(init_x_coeffs)))

@@ -6,7 +6,8 @@ from project import fourier_core
 
 def _eval_rhs(w_coeffs, x_coeffs, b_coeffs, f_nonlin, g):
     conv_int = fourier_core.fft_convolution_integral(w_coeffs, x_coeffs, axes_from=1)
-    y_grid = f_nonlin(conv_int + fourier_core.nifft(b_coeffs))
+    b_grid = fourier_core.nifft(b_coeffs)
+    y_grid = f_nonlin(conv_int + b_grid)
     y_coeffs = fourier_core.fourier_series_coeffs(y_grid, axes_from=1)
     return -x_coeffs + g * y_coeffs
 

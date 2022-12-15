@@ -1,6 +1,6 @@
 import numpy as np
 
-import chebychev_core, chebychev_solver, fourier_core, conv_solver
+from project import chebychev_core, chebychev_solver, fourier_core, conv_solver
 
 
 def cheb_to_fourier(x):
@@ -12,11 +12,11 @@ def test_exponential_decay():
     init_x_coeffs = np.random.uniform(0, 1, x_dim)
     weight_matrix = np.zeros((x_dim, x_dim))
     f_b = lambda t: np.zeros_like(init_x_coeffs)
-    soln = chebychev_solver.solve_coeff_space(weight_matrix, init_x_coeffs, f_b, 1, lambda x: x, 5)
+    soln_t, soln_y = chebychev_solver.solve_coeff_space(weight_matrix, init_x_coeffs, f_b, 1, lambda x: x, 5)
     log_y_0 = np.log(init_x_coeffs)
-    log_y = np.log(np.transpose(soln.y))
+    log_y = np.log(soln_y)
     a = (log_y - log_y_0) * -1
-    np.testing.assert_allclose(np.transpose(a), np.tile(np.expand_dims(soln.t, 0), (x_dim, 1)), rtol=1e-3)
+    np.testing.assert_allclose(np.transpose(a), np.tile(np.expand_dims(soln_t, 0), (x_dim, 1)), rtol=1e-3)
 
 
 def test_1d_conv():
@@ -45,8 +45,8 @@ def test_1d_conv():
     fourier_b = lambda t: np.zeros_like(fourier_init_x)
     fourier_kernel_coeffs = fourier_core.fourier_series_coeffs(fourier_kernel)
     fourier_init_x_coeffs = fourier_core.fourier_series_coeffs(fourier_init_x)
-    conv_soln = conv_solver.solve_coeff_space(fourier_kernel_coeffs, fourier_init_x_coeffs, fourier_b, g, f_nonlin, total_time, t_eval, rtol=1e-7)
-    conv_soln_grid = np.real_if_close(fourier_core.nifft(np.transpose(conv_soln.y), axes_from=1))
+    conv_soln_t, conv_soln_y = conv_solver.solve_coeff_space(fourier_kernel_coeffs, fourier_init_x_coeffs, fourier_b, g, f_nonlin, total_time, t_eval, rtol=1e-7)
+
 
     cheb_k = 7
     cheb_grid = chebychev_core.extrema_grid(2 ** cheb_k)
@@ -56,13 +56,13 @@ def test_1d_conv():
     cheb_kernel_coeffs = chebychev_core.ncheb(cheb_kernel)
     cheb_x_coeffs = chebychev_core.ncheb(cheb_x)
     cheb_b = lambda t: np.zeros_like(cheb_x_coeffs)
-    cheb_soln = chebychev_solver.solve_coeff_space(cheb_kernel_coeffs, cheb_x_coeffs, cheb_b, g, f_nonlin, total_time, t_eval, rtol=1e-7)
-    cheb_soln_grid = np.real_if_close(chebychev_core.icheb(np.transpose(cheb_soln.y), axis=-1))
+    cheb_soln_t, cheb_soln_y = chebychev_solver.solve_coeff_space(cheb_kernel_coeffs, cheb_x_coeffs, cheb_b, g, f_nonlin, total_time, t_eval, rtol=1e-7)
+    cheb_soln_grid = np.real_if_close(chebychev_core.icheb(cheb_soln_y))
 
     fourier_freqs = fourier_core.get_k_vals(len(fourier_grid))
     interpolated_fourier_solns = []
-    for time in range(np.shape(conv_soln.y)[-1]):
-        coeffs = conv_soln.y[:, time]
+    for time in range(np.shape(conv_soln_y)[0]):
+        coeffs = conv_soln_y[time, :]
         interpolated_fourier_solns.append(fourier_core.evaluate_fourier_series(fourier_freqs, coeffs, cheb_to_fourier(cheb_grid)))
     interpolated_fourier_solns = np.real_if_close(np.array(interpolated_fourier_solns))
 
