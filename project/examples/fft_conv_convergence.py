@@ -9,6 +9,7 @@ from project import fourier_core
 def convolution_integrand(x, y, t, t_p):
     return x(t - t_p) * y(t_p)
 
+
 def x_line(t):
     return t
 
@@ -56,14 +57,17 @@ axs[1].set_title("Fourier Series Convergence")
 def aperiod_integration_driver(t):
     return integrate.quad(lambda t_p: convolution_integrand(y_periodic, x_line, t, t_p), 0, 2 * np.pi)[0]
 
+
 p = mp.Pool()
 true_aperiod_conv_results = p.map(aperiod_integration_driver, t_vals)
 aperiod_interp = interpolate.interp1d(t_vals, true_aperiod_conv_results)
 p.close()
 p.join()
 
+
 def period_integration_driver(t):
     return integrate.quad(lambda t_p: convolution_integrand(z_periodic, y_periodic, t, t_p), 0, 2 * np.pi)[0]
+
 
 p = mp.Pool()
 true_period_conv_results = p.map(period_integration_driver, t_vals)
@@ -100,6 +104,5 @@ axs[2].set_ylabel("Relative Error")
 axs[2].set_xlabel("Fourier Series Length")
 axs[2].set_title("Accuracy of FFT-Based Convolution")
 axs[2].set_xscale("log")
-
 fig.tight_layout()
 plt.show()
