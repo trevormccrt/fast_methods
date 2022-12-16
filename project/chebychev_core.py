@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import fftpack
 
-
+from torch_dct import dct1
 def extrema_grid(N):
     n = np.arange(start=0, stop=N, step=1)
     return np.cos(np.pi * n/(N-1))
@@ -18,7 +18,7 @@ def cheb(x, axis=-1):
 
 
 def icheb(x, axis=-1):
-    x = np.swapaxes(x, -1, axis)
+    x = np.swapaxes(np.copy(x), -1, axis)
     x[..., 0] = x[..., 0] * 2
     x[..., -1] = x[..., -1] * 2
     x = np.swapaxes(x, -1, axis)
