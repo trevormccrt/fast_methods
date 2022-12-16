@@ -45,7 +45,7 @@ def _num_to_chr(n):
     return chr(n + 97)
 
 
-def generate_s_x_contractor(k_dims, j_dims, full_s):
+def _sx_subscripts_mats(k_dims, j_dims, full_s):
     s_mats = []
     n = len(k_dims)
     for k_dim, x_dim in zip(k_dims, j_dims):
@@ -54,21 +54,31 @@ def generate_s_x_contractor(k_dims, j_dims, full_s):
     chrs_out = [_num_to_chr(i) for i in range(n, 2 * n)]
     first_sub = "".join(["{}{},".format(chr_out, chr_in) for chr_out, chr_in in zip(chrs_out, chrs_in)])
     second_sub = "..." + "".join(chrs_in)
-    third_sub = "..." +"".join(chrs_out)
+    third_sub = "..." + "".join(chrs_out)
     sub = "{}{} -> {}".format(first_sub, second_sub, third_sub)
+    return sub, s_mats
+
+
+def generate_s_x_contractor(k_dims, j_dims, full_s):
+    sub, s_mats = _sx_subscripts_mats(k_dims, j_dims, full_s)
 
     def contractor(x):
         return np.einsum(sub, *s_mats, x)
     return contractor
 
 
-def generate_w_sx_contractor(n):
+def _w_sx_subs(n):
     chrs_in = [_num_to_chr(i) for i in range(n)]
     chrs_out = [_num_to_chr(i) for i in range(n, 2 * n)]
     first_sub = "".join(chrs_out + chrs_in)
     second_sub = "..." + "".join(chrs_in)
     third_sub = "..." + "".join(chrs_out)
     sub = "{},{} -> {}".format(first_sub, second_sub, third_sub)
+    return sub
+
+
+def generate_w_sx_contractor(n):
+    sub = _w_sx_subs(n)
 
     def contractor(w, x):
         return np.einsum(sub, w, x)

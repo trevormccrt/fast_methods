@@ -28,3 +28,29 @@ def test_transform_equivalence():
     np.testing.assert_allclose(icheb_scipy, icheb_torch)
     np.testing.assert_allclose(ncheb_scipy, ncheb_torch)
     np.testing.assert_allclose(nicheb_scipy, nicheb_torch)
+
+
+def test_s_x_contractor_equivalence():
+    dim_k1 = 12
+    dim_k2 = 18
+    dim_j1 = 5
+    dim_j2 = 20
+    mat = np.random.uniform(-1, 1, (30, 30))
+    vec_2d = np.random.uniform(-1, 1, (dim_j1, dim_j2))
+    contractor_2d_numpy = chebychev_core.generate_s_x_contractor([dim_k1, dim_k2], [dim_j1, dim_j2], mat)
+    contractor_2d_torch = torch_chebychev_core.generate_s_x_contractor([dim_k1, dim_k2], [dim_j1, dim_j2], torch.from_numpy(mat))
+    result_numpy = contractor_2d_numpy(vec_2d)
+    with torch.no_grad():
+        result_torch = contractor_2d_torch(torch.from_numpy(vec_2d))
+    np.testing.assert_allclose(result_numpy, result_torch)
+
+
+def test_w_sx_contractor_equivalence():
+    dim = 10
+    mat_2d = np.random.uniform(-1, 1, (dim, dim, dim, dim))
+    vec_2d = np.random.uniform(-1, 1, (dim, dim))
+    contractor_2d_numpy = chebychev_core.generate_w_sx_contractor(2)
+    contractor_2d_torch = torch_chebychev_core.generate_w_sx_contractor(2)
+    result_numpy = contractor_2d_numpy(mat_2d, vec_2d)
+    result_torch = contractor_2d_torch(torch.from_numpy(mat_2d), torch.from_numpy(vec_2d))
+    np.testing.assert_allclose(result_numpy, result_torch)

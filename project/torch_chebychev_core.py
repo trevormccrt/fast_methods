@@ -1,5 +1,7 @@
 import torch
 
+from project import chebychev_core
+
 
 def _dct1_rfft_impl(x):
     return torch.view_as_real(torch.fft.rfft(x, dim=1))
@@ -63,3 +65,19 @@ def nicheb(x, axis_from=0):
     for ax in to_transform:
         x_coeff = icheb(x_coeff, axis=ax)
     return x_coeff
+
+
+def generate_s_x_contractor(k_dims, j_dims, full_s):
+    sub, s_mats = chebychev_core._sx_subscripts_mats(k_dims, j_dims, full_s)
+
+    def contractor(x):
+        return torch.einsum(sub, *s_mats, x)
+    return contractor
+
+
+def generate_w_sx_contractor(n):
+    sub = chebychev_core._w_sx_subs(n)
+
+    def contractor(w, x):
+        return torch.einsum(sub, w, x)
+    return contractor
