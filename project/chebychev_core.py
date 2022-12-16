@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import fftpack
 
-from torch_dct import dct1
+
 def extrema_grid(N):
     n = np.arange(start=0, stop=N, step=1)
     return np.cos(np.pi * n/(N-1))
