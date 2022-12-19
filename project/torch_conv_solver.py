@@ -17,6 +17,7 @@ def odeint_complex(func, y0, t, rtol=1e-7, atol=1e-9, method=None, options=None,
     result = integrator(func, stacked_y0, t, rtol=rtol, atol=atol, method=method, options=options, event_fn=event_fn)
     return _stack_to_complex(result)
 
+
 class ConvNFModel(torch.nn.Module):
     def __init__(self, weight_coeffs, b_func, g, nonlin=torch.tanh):
         super().__init__()

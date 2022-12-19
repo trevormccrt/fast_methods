@@ -19,13 +19,13 @@ def test_solve_consistency():
     t_max = 1
     soln_times = np.arange(start=0, stop=t_max, step=0.1)
     with torch.no_grad():
-        torch_soln = torch_conv_solver.odeint_complex(torch_dynamics, torch.from_numpy(init_x_coeffs), torch.from_numpy(soln_times))
+        torch_soln = torch_conv_solver.odeint_complex(torch_dynamics, torch.from_numpy(init_x_coeffs), torch.from_numpy(soln_times), rtol=1e-8)
     scipy_solns = []
     for init_x in init_x_coeffs:
-        scipy_soln_t, scipy_soln_y = conv_solver.solve_coeff_space(w_coeffs, init_x, b_func_numpy, g, np.tanh, t_max, soln_times)
+        scipy_soln_t, scipy_soln_y = conv_solver.solve_coeff_space(w_coeffs, init_x, b_func_numpy, g, np.tanh, t_max, soln_times, rtol=1e-8)
         scipy_solns.append(scipy_soln_y)
     scipy_solns = np.array(scipy_solns)
     torch_soln = torch_soln.numpy()
     torch_soln = np.swapaxes(torch_soln, 0, 1)
     error = np.max(np.abs(torch_soln - scipy_solns), (2, 3))/np.max(np.abs(scipy_solns))
-    np.testing.assert_allclose(error, np.zeros_like(error), atol=1e-3)
+    assert np.mean(error) < 1e-4
