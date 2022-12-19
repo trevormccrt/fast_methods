@@ -19,3 +19,8 @@ def nifft(x, axes_from=None):
     if axes_from is not None:
         axes = tuple(np.arange(start=0, stop=x.dim(), step=1)[axes_from:])
     return torch.fft.ifftn(x, norm="forward", dim=axes)
+
+
+def fft_convolution_integral(x_series_coeffs, y_series_coeffs, axes_from=None):
+    n = x_series_coeffs.dim()
+    return ((2 * np.pi) ** n) * nifft(x_series_coeffs * y_series_coeffs, axes_from=axes_from)

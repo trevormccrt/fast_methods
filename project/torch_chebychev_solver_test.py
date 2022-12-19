@@ -6,7 +6,7 @@ from project import torch_chebychev_solver, chebychev_solver
 
 
 def test_solve_consistency():
-    g = 1
+    g = 1.0
     batch_size = 5
     x_dims = (2 ** 5, 2 ** 7)
     w_dims = (*x_dims, 2**8, 2**4)
@@ -16,7 +16,7 @@ def test_solve_consistency():
     torch_const_input = torch.from_numpy(numpy_const_input)
     b_func_numpy = lambda x: numpy_const_input
     b_func_torch = lambda x: torch_const_input
-    torch_dynamics = torch_chebychev_solver.ChebychevNFModel(torch.from_numpy(w_coeffs), b_func_torch, x_dims, g, nonlin=torch.tanh)
+    torch_dynamics = torch_chebychev_solver.ChebychevNFModel(torch.from_numpy(w_coeffs), b_func_torch, torch.tensor(g), nonlin=torch.tanh)
     t_max = 5
     soln_times = np.arange(start=0, stop=t_max, step=0.5)
     with torch.no_grad():
