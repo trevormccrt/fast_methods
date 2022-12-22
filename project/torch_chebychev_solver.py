@@ -5,18 +5,18 @@ from project import chebychev_core, torch_chebychev_core
 
 
 class ChebychevNFModel(torch.nn.Module):
-    def __init__(self, weight_coeffs, b_func, x_dims, g, nonlin=torch.tanh):
+    def __init__(self, weight_coeffs, b_func, g, nonlin=torch.tanh):
         super().__init__()
         self.weight_coeffs = torch.nn.Parameter(weight_coeffs)
         self.b_func = b_func
         self.nonlin = nonlin
         self.n = int(weight_coeffs.dim()/2)
         w_dims = weight_coeffs.size()
-        all_dims = np.concatenate([w_dims, x_dims])
-        cheb_int_mat = torch.tensor(chebychev_core.generate_cheb_integral_matrix(np.max(all_dims) - 1), dtype=self.weight_coeffs.dtype)
+        x_dims = w_dims[:self.n]
+        cheb_int_mat = torch.tensor(chebychev_core.generate_cheb_integral_matrix(np.max(w_dims) - 1), dtype=self.weight_coeffs.dtype)
         self.s_x_contractor = torch_chebychev_core.generate_s_x_contractor(w_dims[self.n:], x_dims, cheb_int_mat)
         self.w_sx_contractor = torch_chebychev_core.generate_w_sx_contractor(self.n)
-        self.g = g
+        self.g = torch.nn.Parameter(g)
 
     def forward(self, t, x_coeffs):
         axis_from = x_coeffs.dim() - self.n

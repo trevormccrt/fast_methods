@@ -22,12 +22,12 @@ def test_transform_equivalence():
         icheb_torch = torch_chebychev_core.icheb(torch.from_numpy(x), trns_dim)
         ncheb_torch = torch_chebychev_core.ncheb(torch.from_numpy(x), trns_dim)
         nicheb_torch = torch_chebychev_core.nicheb(torch.from_numpy(x), trns_dim)
-    np.testing.assert_allclose(dct_1_scipy, dct_1_torch)
-    np.testing.assert_allclose(idct_1_scipy, idct_1_torch)
-    np.testing.assert_allclose(cheb_scipy, cheb_torch)
-    np.testing.assert_allclose(icheb_scipy, icheb_torch)
-    np.testing.assert_allclose(ncheb_scipy, ncheb_torch)
-    np.testing.assert_allclose(nicheb_scipy, nicheb_torch)
+    np.testing.assert_allclose(dct_1_scipy, dct_1_torch, atol=1e-12)
+    np.testing.assert_allclose(idct_1_scipy, idct_1_torch, atol=1e-12)
+    np.testing.assert_allclose(cheb_scipy, cheb_torch, atol=1e-12)
+    np.testing.assert_allclose(icheb_scipy, icheb_torch, atol=1e-12)
+    np.testing.assert_allclose(ncheb_scipy, ncheb_torch, atol=1e-12)
+    np.testing.assert_allclose(nicheb_scipy, nicheb_torch, atol=1e-12)
 
 
 def test_s_x_contractor_equivalence():
